@@ -1,0 +1,14 @@
+{
+  "name": "brandonlim-hs/http-client",
+  "description": "Light weight HTTP client",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Brandon Lim",
+      "email": "brandonlim.lim@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.3"
+  }
+}

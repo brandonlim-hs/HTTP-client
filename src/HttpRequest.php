@@ -27,6 +27,11 @@ class HttpRequest
     protected $method = HttpRequestMethod::GET;
 
     /**
+     * @var string HTTP protocol, currently only HTTP/1.1 is supported.
+     */
+    protected $protocol = 'HTTP/1.1';
+
+    /**
      * @var string The URL of the request.
      */
     protected $url = '';
@@ -103,6 +108,16 @@ class HttpRequest
         $this->method = $method;
 
         return $this;
+    }
+
+    /**
+     * Return the HTTP protocol of the request.
+     *
+     * @return string Return the request protocol.
+     */
+    public function getProtocol()
+    {
+        return $this->protocol;
     }
 
     /**

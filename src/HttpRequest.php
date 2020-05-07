@@ -27,6 +27,11 @@ class HttpRequest
     protected $method = HttpRequestMethod::GET;
 
     /**
+     * @var string The URL of the request.
+     */
+    protected $url = '';
+
+    /**
      * Return the body of the request.
      *
      * @return string|array Returns the request body.
@@ -96,6 +101,35 @@ class HttpRequest
             throw new InvalidArgumentException("Invalid HTTP method given: {$method}");
         }
         $this->method = $method;
+
+        return $this;
+    }
+
+    /**
+     * Return the URL of the request.
+     *
+     * @return string Return the request URL.
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * Set the URL for the request.
+     *
+     * @param string $url The new URL (case-insensitive).
+     * @return $this
+     * @throws InvalidArgumentException for invalid URLs.
+     */
+    public function withUrl($url)
+    {
+        $url = strtolower($url);
+        if (!parse_url($url)) {
+            // URL is malformed
+            throw new InvalidArgumentException("Invalid URL given: {$url}");
+        }
+        $this->url = $url;
 
         return $this;
     }

@@ -119,4 +119,58 @@ class HttpRequestTest extends TestCase
 
         $this->assertEquals($body, $request->getBody());
     }
+
+    /**
+     * Return a data provider array of valid URLs.
+     *
+     * @return array Return a data provider array of valid URLs.
+     */
+    public function validUrl()
+    {
+        $validUrls = [
+            'https://www.google.com.au/',
+            'www.php.net/downloads',
+        ];
+        return $this->toDataProviderArray($validUrls);
+    }
+
+    /**
+     * Test setting a valid URL for a request.
+     *
+     * @dataProvider validUrl
+     * @param string $url The URL.
+     */
+    public function testSetValidUrl($url)
+    {
+        $request = new HttpRequest();
+        $request->withUrl($url);
+
+        $this->assertEquals($url, $request->getUrl());
+    }
+
+    /**
+     * Return a data provider array of invalid URLs.
+     *
+     * @return array Return a data provider array of invalid URLs.
+     */
+    public function invalidUrl()
+    {
+        $invalidUrls = [
+            '///',
+        ];
+        return $this->toDataProviderArray($invalidUrls);
+    }
+
+    /**
+     * Test setting an invalid URL for a request should throw an {@link InvalidArgumentException}.
+     *
+     * @dataProvider invalidUrl
+     * @param string $url The URL.
+     */
+    public function testSetInvalidUrl($url)
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $request = new HttpRequest();
+        $request->withUrl($url);
+    }
 }

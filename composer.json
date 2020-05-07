@@ -9,6 +9,25 @@
     }
   ],
   "require": {
-    "php": "^7.3"
+    "php": "^7.3",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "HttpClient\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "HttpClient\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": [
+      "phpunit tests/"
+    ]
   }
 }

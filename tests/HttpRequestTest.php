@@ -6,16 +6,23 @@ use HttpClient\HttpRequest;
 use HttpClient\HttpRequestMethod;
 use HttpClient\Tests\Traits\DataProvider;
 use InvalidArgumentException;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests for {@link HttpRequest} class.
  *
  * @package HttpClient\Tests
  */
-class HttpRequestTest extends TestCase
+class HttpRequestTest extends HttpMessageTest
 {
     use DataProvider;
+
+    /**
+     * @inheritDoc
+     */
+    public function newHttpMessage()
+    {
+        return new HttpRequest();
+    }
 
     /**
      * Return a data provider array of valid HTTP methods.
@@ -67,57 +74,6 @@ class HttpRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $request = new HttpRequest();
         $request->withMethod($method);
-    }
-
-    /**
-     * Test setting headers in HTTP request.
-     */
-    public function testHttpHeaders()
-    {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ];
-
-        $request = new HttpRequest();
-        foreach ($headers as $headerName => $headerValue) {
-            $request->withHeader($headerName, $headerValue);
-        }
-        $requestHeaders = $request->getHeaders();
-
-        sort($headers);
-        sort($requestHeaders);
-        $this->assertEquals($headers, $requestHeaders);
-    }
-
-    /**
-     * Return a data provider array of valid body contents.
-     *
-     * @return array Return a data provider array of valid body contents.
-     */
-    public function validRequestBody()
-    {
-        $validBodyContent = [
-            'Example body content', // String body content
-            [ // Array body content
-                'data' => 'Example body content'
-            ]
-        ];
-        return $this->toDataProviderArray($validBodyContent);
-    }
-
-    /**
-     * Test setting body in HTTP request.
-     *
-     * @dataProvider validRequestBody
-     * @param string|array $body The body content.
-     */
-    public function testAddRequestBody($body)
-    {
-        $request = new HttpRequest();
-        $request->withBody($body);
-
-        $this->assertEquals($body, $request->getBody());
     }
 
     /**

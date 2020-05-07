@@ -89,4 +89,34 @@ class HttpRequestTest extends TestCase
         sort($requestHeaders);
         $this->assertEquals($headers, $requestHeaders);
     }
+
+    /**
+     * Return a data provider array of valid body contents.
+     *
+     * @return array Return a data provider array of valid body contents.
+     */
+    public function validRequestBody()
+    {
+        $validBodyContent = [
+            'Example body content', // String body content
+            [ // Array body content
+                'data' => 'Example body content'
+            ]
+        ];
+        return $this->toDataProviderArray($validBodyContent);
+    }
+
+    /**
+     * Test setting body in HTTP request.
+     *
+     * @dataProvider validRequestBody
+     * @param string|array $body The body content.
+     */
+    public function testAddRequestBody($body)
+    {
+        $request = new HttpRequest();
+        $request->withBody($body);
+
+        $this->assertEquals($body, $request->getBody());
+    }
 }

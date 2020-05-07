@@ -12,6 +12,11 @@ use InvalidArgumentException;
 class HttpRequest
 {
     /**
+     * @var string|array The body of the request.
+     */
+    protected $body = '';
+
+    /**
      * @var array HTTP headers to be sent with the request.
      */
     protected $headers = [];
@@ -20,6 +25,29 @@ class HttpRequest
      * @var string HTTP method for the request.
      */
     protected $method = HttpRequestMethod::GET;
+
+    /**
+     * Return the body of the request.
+     *
+     * @return string|array Returns the request body.
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * Set the body of the request.
+     *
+     * @param string|array $body The new body content.
+     * @return $this
+     */
+    public function withBody($body)
+    {
+        $this->body = $body;
+
+        return $this;
+    }
 
     /**
      * Return the HTTP headers of the request.

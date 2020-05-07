@@ -61,4 +61,21 @@ class HttpClientTest extends TestCase
         $response = $client->send($method, $url, $body, $headers);
         $this->assertNotEmpty($response);
     }
+
+    /**
+     * Test sending valid HTTP request with JSON payload.
+     */
+    public function testSendValidJsonHttpRequest()
+    {
+        $client = new HttpClient();
+        $response = $client->sendJson(
+            HttpRequestMethod::POST,
+            'https://postman-echo.com/post',
+            [
+                'foo1' => 'bar1',
+                'foo2' => 'bar2',
+            ]
+        );
+        $this->assertNotEmpty($response);
+    }
 }

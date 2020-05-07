@@ -34,6 +34,29 @@ class HttpClient
     }
 
     /**
+     * Send HTTP request with JSON payload.
+     *
+     * @param string $method The HTTP method for the request.
+     * @param string $url The URL for the request.
+     * @param array $body The JSON body of the request.
+     * @param array $headers The headers for the request.
+     * @return mixed
+     */
+    public function sendJson(string $method, string $url, array $body = [], array $headers = [])
+    {
+        $body = json_encode($body);
+        $headers = array_merge(
+            $headers,
+            [
+                'Content-type' => 'application/json',
+                'Accept' => 'application/json',
+            ]
+        );
+
+        return $this->send($method, $url, $body, $headers);
+    }
+
+    /**
      * Send the given HTTP request using fsockopen.
      *
      * @param HttpRequest $request The HTTP request.

@@ -68,4 +68,25 @@ class HttpRequestTest extends TestCase
         $request = new HttpRequest();
         $request->withMethod($method);
     }
+
+    /**
+     * Test setting headers in HTTP request.
+     */
+    public function testHttpHeaders()
+    {
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ];
+
+        $request = new HttpRequest();
+        foreach ($headers as $headerName => $headerValue) {
+            $request->withHeader($headerName, $headerValue);
+        }
+        $requestHeaders = $request->getHeaders();
+
+        sort($headers);
+        sort($requestHeaders);
+        $this->assertEquals($headers, $requestHeaders);
+    }
 }

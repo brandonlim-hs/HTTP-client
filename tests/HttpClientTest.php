@@ -134,7 +134,9 @@ class HttpClientTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('OK', $response->getReasonPhrase());
-        $this->assertNotEmpty($response->getBody());
-        $this->assertGreaterThan(0, $response->getHeaders());
+        $responseBody = $response->getBody();
+        $this->assertArrayHasKey('json', $responseBody);
+        $this->assertEquals($payload, $responseBody['json']);
+        $this->assertNotEmpty($response->getHeaders());
     }
 }

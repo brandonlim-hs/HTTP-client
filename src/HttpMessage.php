@@ -51,6 +51,17 @@ abstract class HttpMessage
     }
 
     /**
+     * Return the value for given HTTP header of the message.
+     *
+     * @param string $name The header field name (case-insensitive).
+     * @return string Return the value for HTTP header.
+     */
+    public function getHeader($name)
+    {
+        return $this->headers[$name] ?? '';
+    }
+
+    /**
      * Return the HTTP headers of the message.
      *
      * @return array Return the HTTP headers.

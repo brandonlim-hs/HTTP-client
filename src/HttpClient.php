@@ -4,6 +4,7 @@ namespace HttpClient;
 
 use HttpClient\Exceptions\HttpClientErrorException;
 use HttpClient\Exceptions\HttpServerErrorException;
+use HttpClient\Exceptions\JsonConversionException;
 use RuntimeException;
 
 /**
@@ -17,6 +18,11 @@ class HttpClient
      * Constant for new line.
      */
     private const NEW_LINE = "\r\n";
+
+    /**
+     * The MIME media type for JSON text.
+     */
+    const APPLICATION_JSON = 'application/json';
 
     /**
      * Send HTTP request.
@@ -55,8 +61,8 @@ class HttpClient
         $headers = array_merge(
             $headers,
             [
-                'Content-type' => 'application/json',
-                'Accept' => 'application/json',
+                'Content-type' => self::APPLICATION_JSON,
+                'Accept' => self::APPLICATION_JSON,
             ]
         );
 
@@ -155,6 +161,14 @@ class HttpClient
                 // Header name and value is separated by ': '
                 [$headerName, $headerValue] = explode(': ', $line);
                 $response->withHeader($headerName, $headerValue);
+            }
+        }
+
+        if (strpos($response->getHeader('Content-Type'), self::APPLICATION_JSON) !== false) {
+            $body = json_decode($body, true);
+            if ($body === null) {
+                // Throw exception if unable to decode JSON string
+                throw new JsonConversionException('Error decoding JSON:' . self::NEW_LINE . $body);
             }
         }
         $response->withBody($body);

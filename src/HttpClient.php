@@ -117,25 +117,25 @@ class HttpClient
         fputs($fp, "Connection: close" . self::NEW_LINE . self::NEW_LINE);
         fputs($fp, $body . self::NEW_LINE . self::NEW_LINE);
 
-        $content = stream_get_contents($fp);
+        $response = $this->getHttpResponseFromFp($fp);
+
         fclose($fp);
 
-        return $this->getHttpResponseFromString($content);
+        return $response;
     }
 
     /**
      * Return {@link HttpResponse} representing the HTTP message string.
      *
-     * @param string $message The HTTP message string.
+     * @param resource $fp The file pointer to socket.
      * @return HttpResponse The HTTP response.
      */
-    private function getHttpResponseFromString(string $message): HttpResponse
+    private function getHttpResponseFromFp($fp): HttpResponse
     {
         $response = new HttpResponse();
 
-        $lines = explode(self::NEW_LINE, $message);
-
-        $statusLine = array_shift($lines);
+        // Get status line
+        $statusLine = trim(fgets($fp));
         [$protocol, $status, $reason] = explode(' ', $statusLine);
         if (substr($status, 0, 1) === '4') {
             // Throw exception for 4xx status code
@@ -146,17 +146,12 @@ class HttpClient
         }
         $response->withStatusCode($status)->withReasonPhrase($reason);
 
-        $bodySection = false;
-        $body = '';
-        foreach ($lines as $line) {
-            if ($line === '' && $bodySection === false) {
+        // Get headers
+        while (!feof($fp)) {
+            $line = trim(fgets($fp));
+            if ($line === '') {
                 // Found empty line, next line is body section
-                $bodySection = true;
-                continue;
-            }
-            if ($bodySection) {
-                // Combine all body lines
-                $body .= $line;
+                break;
             } else {
                 // Header name and value is separated by ': '
                 [$headerName, $headerValue] = explode(': ', $line);
@@ -164,6 +159,8 @@ class HttpClient
             }
         }
 
+        // Get body
+        $body = $this->getBodyContentFromFp($fp, $response->getHeader('Transfer-Encoding') === 'chunked');
         if (strpos($response->getHeader('Content-Type'), self::APPLICATION_JSON) !== false) {
             $body = json_decode($body, true);
             if ($body === null) {
@@ -174,5 +171,41 @@ class HttpClient
         $response->withBody($body);
 
         return $response;
+    }
+
+    /**
+     * Return the body content as a string.
+     *
+     * @param resource $fp The file pointer to socket.
+     * @param bool $chunked The boolean flag whether the body is chunked.
+     * @return string
+     */
+    private function getBodyContentFromFp($fp, bool $chunked = false): string
+    {
+        $body = '';
+        $chunk_length = null;
+        while (!feof($fp)) {
+            $line = trim(fgets($fp));
+            if ($chunked) {
+                if ($chunk_length === null) {
+                    // Convert length to decimal
+                    $chunk_length = hexdec($line);
+                    // No more to read if length is 0
+                    if ($chunk_length === 0) {
+                        break;
+                    }
+                    continue;
+                }
+                $chunk_length -= strlen($line);
+                // Reset and get new chunk length when finish reading current chunk
+                if ($chunk_length <= 0) {
+                    $chunk_length = null;
+                }
+            }
+            // Combine all body lines
+            $body .= $line;
+        }
+
+        return $body;
     }
 }

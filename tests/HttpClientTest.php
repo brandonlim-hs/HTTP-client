@@ -193,4 +193,21 @@ class HttpClientTest extends TestCase
         $this->assertEquals($payload, $responseBody['json']);
         $this->assertNotEmpty($response->getHeaders());
     }
+
+    /**
+     * Test retrieving chunked HTTP response.
+     */
+    public function testRetrieveChunkedHttpResponse()
+    {
+        $client = new HttpClient();
+        $response = $client->send(
+            HttpRequestMethod::GET,
+            'https://postman-echo.com/stream/5'
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('OK', $response->getReasonPhrase());
+        $this->assertNotEmpty($response->getBody());
+        $this->assertNotEmpty($response->getHeaders());
+    }
 }

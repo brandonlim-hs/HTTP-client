@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Unit tests for {@link HttpClient} class.
  *
- * Uses Postman Echo to verify sent request data.
+ * Uses Postman Echo to verify request and response data.
  *
  * @package HttpClient\Tests
  */
@@ -65,7 +65,7 @@ class HttpClientTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('OK', $response->getReasonPhrase());
         $this->assertNotEmpty($response->getBody());
-        $this->assertGreaterThan(0, $response->getHeaders());
+        $this->assertNotEmpty($response->getHeaders());
     }
 
     /**
@@ -114,6 +114,60 @@ class HttpClientTest extends TestCase
         $this->expectException($expectedExceptionClass);
         $client = new HttpClient();
         $client->send($method, $url, $body, $headers);
+    }
+
+    /**
+     * Test sending HTTP request with HTTP header.
+     */
+    public function testHttpRequestHeader()
+    {
+        $client = new HttpClient();
+        $headers = [
+            'foo1' => 'bar1',
+            'foo2' => 'bar2',
+        ];
+        $response = $client->send(
+            HttpRequestMethod::GET,
+            'https://postman-echo.com/headers',
+            '',
+            $headers
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('OK', $response->getReasonPhrase());
+        $responseBody = $response->getBody();
+        $responseBodyHeaders = $responseBody['headers'];
+        foreach ($headers as $expectedHeaderName => $expectedHeaderValue) {
+            $this->assertArrayHasKey($expectedHeaderName, $responseBodyHeaders);
+            $this->assertEquals($expectedHeaderValue, $responseBodyHeaders[$expectedHeaderName]);
+        }
+        $this->assertNotEmpty($response->getHeaders());
+    }
+
+    /**
+     * Test retrieving HTTP header from HTTP response.
+     */
+    public function testHttpResponseHeader()
+    {
+        $client = new HttpClient();
+        $response = $client->send(
+            HttpRequestMethod::GET,
+            'https://postman-echo.com/response-headers?foo1=bar1&foo2=bar2',
+            );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('OK', $response->getReasonPhrase());
+        $this->assertNotEmpty($response->getBody());
+        $responseHeaders = $response->getHeaders();
+        foreach (
+            [
+                'foo1' => 'bar1',
+                'foo2' => 'bar2',
+            ] as $expectedHeaderName => $expectedHeaderValue
+        ) {
+            $this->assertArrayHasKey($expectedHeaderName, $responseHeaders);
+            $this->assertEquals($expectedHeaderValue, $responseHeaders[$expectedHeaderName]);
+        }
     }
 
     /**

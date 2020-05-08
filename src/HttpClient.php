@@ -149,7 +149,7 @@ class HttpClient
         $bodySection = false;
         $body = '';
         foreach ($lines as $line) {
-            if (empty($line)) {
+            if ($line === '' && $bodySection === false) {
                 // Found empty line, next line is body section
                 $bodySection = true;
                 continue;
